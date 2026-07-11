@@ -1,16 +1,15 @@
 import tkinter as tk
-from tkinter import colorchooser
+import cores
+import desenhos
 
-ferramenta_atual = None     
-cor_borda = "#000000"        
-cor_preenchimento = "#FFFFFF"  
+ferramenta_atual = None
 
 
 def atualizar_status():
     texto = (
         f"Ferramenta: {ferramenta_atual or 'Nenhuma'}    |    "
-        f"Cor da borda: {cor_borda}    |    "
-        f"Preenchimento: {cor_preenchimento}"
+        f"Cor da borda: {cores.obter_cor_borda()}    |    "
+        f"Preenchimento: {cores.obter_cor_preenchimento()}"
     )
     label_status.config(text=texto)
 
@@ -22,21 +21,16 @@ def selecionar_ferramenta(nome):
 
 
 def selecionar_cor_borda():
-    global cor_borda
-    cor = colorchooser.askcolor(title="Selecione a cor da borda")
-    if cor and cor[1]:
-        cor_borda = cor[1]
-        preview_borda.config(bg=cor_borda)
-        atualizar_status()
+    cores.escolher_cor_borda()
+    preview_borda.config(bg=cores.obter_cor_borda())
+    atualizar_status()
 
 
 def selecionar_cor_preenchimento():
-    global cor_preenchimento
-    cor = colorchooser.askcolor(title="Selecione a cor de preenchimento")
-    if cor and cor[1]:
-        cor_preenchimento = cor[1]
-        preview_preenchimento.config(bg=cor_preenchimento)
-        atualizar_status()
+    cores.escolher_cor_preenchimento()
+    preview_preenchimento.config(bg=cores.obter_cor_preenchimento())
+    atualizar_status()
+
 
 def criar_barra_ferramentas(janela):
     frame_ferramentas = tk.Frame(janela, bd=1, relief=tk.RAISED)
@@ -77,19 +71,18 @@ def criar_seletor_cores(janela):
     btn_cor_borda.pack(side=tk.LEFT, padx=(10, 3), pady=3)
 
     preview_borda = tk.Frame(
-        frame_cores, width=25, height=25, bg=cor_borda,
+        frame_cores, width=25, height=25, bg=cores.obter_cor_borda(),
         relief=tk.SUNKEN, bd=1
     )
     preview_borda.pack(side=tk.LEFT, padx=(0, 15), pady=3)
 
-    
     btn_cor_preenchimento = tk.Button(
         frame_cores, text="Cor de Preenchimento", command=selecionar_cor_preenchimento
     )
     btn_cor_preenchimento.pack(side=tk.LEFT, padx=3, pady=3)
 
     preview_preenchimento = tk.Frame(
-        frame_cores, width=25, height=25, bg=cor_preenchimento,
+        frame_cores, width=25, height=25, bg=cores.obter_cor_preenchimento(),
         relief=tk.SUNKEN, bd=1
     )
     preview_preenchimento.pack(side=tk.LEFT, padx=(0, 10), pady=3)
@@ -98,6 +91,17 @@ def criar_seletor_cores(janela):
 def criar_canvas(janela):
     canvas = tk.Canvas(janela, bg="white", cursor="cross")
     canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+    canvas.bind("<ButtonPress-1>", desenhos.iniciar)
+    canvas.bind(
+        "<B1-Motion>",
+        lambda evento: desenhos.atualizar(evento, canvas, ferramenta_atual)
+    )
+    canvas.bind(
+        "<ButtonRelease-1>",
+        lambda evento: desenhos.armazenar(evento, canvas, ferramenta_atual)
+    )
+
     return canvas
 
 
@@ -113,6 +117,7 @@ def criar_status(janela):
         anchor="w"
     )
     label_status.pack(side=tk.LEFT, padx=10, pady=3)
+
 
 def main():
     janela = tk.Tk()
