@@ -1,97 +1,98 @@
-import cores
+class GerenciadorDesenho:
+    def __init__(self, gerenciador_cores):
+        self.gerenciador_cores = gerenciador_cores
 
-xini = None
-yini = None
-xfim = None
-yfim = None
-raio = None
+        self.figuras = []       # Todas as figuras já desenhadas
+        self.figura_nova = None # Figura sendo desenhada no momento
 
-retangulos = []
-ovais = []
-circulos = []
+    def iniciar(self, evento, ferramenta):
+        if ferramenta is None:
+            self.figura_nova = None
+            return
 
+        cor_borda = self.gerenciador_cores.obter_cor_borda()
+        cor_preenchimento = self.gerenciador_cores.obter_cor_preenchimento()
 
-def iniciar(evento):
-    global xini, yini
-    xini = evento.x
-    yini = evento.y
+        if ferramenta == "rabisco":
+            self.figura_nova = (
+                "rabisco", [(evento.x, evento.y)], cor_borda, cor_preenchimento
+            )
+        else:  # linha, retangulo, oval, circulo
+            self.figura_nova = (
+                ferramenta, (evento.x, evento.y, evento.x, evento.y),
+                cor_borda, cor_preenchimento
+            )
 
+    def atualizar(self, evento, canvas, ferramenta):
+        if self.figura_nova is None:
+            return
 
-def atualizar(evento, canvas, ferramenta):
-    global xini, yini, xfim, yfim
+        fig, values, cor_borda, cor_preenchimento = self.figura_nova
 
-    if ferramenta is None or xini is None:
-        return
+        if fig == "rabisco":
+            values.append((evento.x, evento.y))
+        else:
+            values = (values[0], values[1], evento.x, evento.y)
 
-    xfim = evento.x
-    yfim = evento.y
+        self.figura_nova = (fig, values, cor_borda, cor_preenchimento)
 
-    canvas.delete("all")
-    redesenhar_tudo(canvas)
-    desenhar_atual(canvas, ferramenta, xini, yini, xfim, yfim)
+        canvas.delete("all")
+        self.redesenhar_tudo(canvas)
+        self.desenhar_figura(canvas, self.figura_nova, dash=(4, 2))
 
+    def armazenar(self, evento, canvas, ferramenta):
+        if self.figura_nova is not None and not self.incompleta(self.figura_nova):
+            self.figuras.append(self.figura_nova)
 
-def desenhar_atual(canvas, ferramenta, xi, yi, xf, yf):
-    global raio
+        self.figura_nova = None
 
-    cor_borda = cores.obter_cor_borda()
-    cor_preenchimento = cores.obter_cor_preenchimento()
+        canvas.delete("all")
+        self.redesenhar_tudo(canvas)
 
-    if ferramenta == "oval":
-        canvas.create_oval(
-            xi, yi, xf, yf,
-            outline=cor_borda, fill=cor_preenchimento, width=2
-        )
-    elif ferramenta == "circulo":
-        raio = ((xi - xf) ** 2 + (yi - yf) ** 2) ** 0.5
-        canvas.create_oval(
-            xi - raio, yi - raio, xi + raio, yi + raio,
-            outline=cor_borda, fill=cor_preenchimento, width=2
-        )
-    else:
-        canvas.create_rectangle(
-            xi, yi, xf, yf,
-            outline=cor_borda, fill=cor_preenchimento, width=2
-        )
+    def redesenhar_tudo(self, canvas):
+        for figura in self.figuras:
+            self.desenhar_figura(canvas, figura)
 
+    def desenhar_figura(self, canvas, figura, dash=None):
+        fig, values, cor_borda, cor_preenchimento = figura
 
-def armazenar(evento, canvas, ferramenta):
-    global xini, yini, xfim, yfim, raio
+        if fig == "linha":
+            opcoes = {"fill": cor_borda}
+            if dash:
+                opcoes["dash"] = dash
+            canvas.create_line(values[0], values[1], values[2], values[3], **opcoes)
 
-    if ferramenta is None or xini is None or xfim is None:
-        return
+        elif fig == "rabisco":
+            if len(values) > 1:
+                opcoes = {"fill": cor_borda}
+                if dash:
+                    opcoes["dash"] = dash
+                canvas.create_line(values, **opcoes)
 
-    cor_borda = cores.obter_cor_borda()
-    cor_preenchimento = cores.obter_cor_preenchimento()
+        elif fig == "retangulo":
+            opcoes = {"outline": cor_borda, "fill": cor_preenchimento, "width": 2}
+            if dash:
+                opcoes["dash"] = dash
+            canvas.create_rectangle(values[0], values[1], values[2], values[3], **opcoes)
 
-    if ferramenta == "oval":
-        ovais.append((xini, yini, xfim, yfim, cor_borda, cor_preenchimento))
-    elif ferramenta == "circulo":
-        circulos.append((
-            xini - raio, yini - raio, xini + raio, yini + raio,
-            cor_borda, cor_preenchimento
-        ))
-    else:
-        retangulos.append((xini, yini, xfim, yfim, cor_borda, cor_preenchimento))
+        elif fig == "oval":
+            opcoes = {"outline": cor_borda, "fill": cor_preenchimento, "width": 2}
+            if dash:
+                opcoes["dash"] = dash
+            canvas.create_oval(values[0], values[1], values[2], values[3], **opcoes)
 
-    canvas.delete("all")
-    redesenhar_tudo(canvas)
+        else:  # circulo
+            xi, yi, xf, yf = values
+            raio = ((xi - xf) ** 2 + (yi - yf) ** 2) ** 0.5
+            opcoes = {"outline": cor_borda, "fill": cor_preenchimento, "width": 2}
+            if dash:
+                opcoes["dash"] = dash
+            canvas.create_oval(xi - raio, yi - raio, xi + raio, yi + raio, **opcoes)
 
-    xini, yini, xfim, yfim = None, None, None, None
+    def incompleta(self, figura):
+        fig, values = figura[0], figura[1]
 
-
-def redesenhar_tudo(canvas):
-    for xi, yi, xf, yf, cor_borda, cor_preenchimento in retangulos:
-        canvas.create_rectangle(
-            xi, yi, xf, yf, outline=cor_borda, fill=cor_preenchimento, width=2
-        )
-
-    for xi, yi, xf, yf, cor_borda, cor_preenchimento in ovais:
-        canvas.create_oval(
-            xi, yi, xf, yf, outline=cor_borda, fill=cor_preenchimento, width=2
-        )
-
-    for xi, yi, xf, yf, cor_borda, cor_preenchimento in circulos:
-        canvas.create_oval(
-            xi, yi, xf, yf, outline=cor_borda, fill=cor_preenchimento, width=2
-        )
+        if fig == "rabisco":
+            return len(values) <= 1
+        else:  # linha, retangulo, oval, circulo
+            return (values[0], values[1]) == (values[2], values[3])
