@@ -3,22 +3,16 @@ from tkinter import colorchooser
 from modelo.desenho import Desenho
 from modelo.gerenciador_cores import GerenciadorCores
 
-from modelo.linha import Linha
-from modelo.retangulo import Retangulo
-from modelo.oval import Oval
-from modelo.circulo import Circulo
-from modelo.rabisco import Rabisco
+from controlador.estados.estado_linha import EstadoLinha
+from controlador.estados.estado_retangulo import EstadoRetangulo
+from controlador.estados.estado_oval import EstadoOval
+from controlador.estados.estado_circulo import EstadoCirculo
+from controlador.estados.estado_rabisco import EstadoRabisco
+
 
 
 class Controlador:
 
-    MAPA = {
-        "Linha": Linha,
-        "Rabisco": Rabisco,
-        "Retângulo": Retangulo,
-        "Oval": Oval,
-        "Círculo": Circulo
-    }
 
     def __init__(self, view):
 
@@ -30,7 +24,14 @@ class Controlador:
 
         self.figura_atual = None
 
+        self.estado = EstadoLinha()
+
         self._ligar_eventos()
+
+        self.trocar_estado()
+
+        
+            
 
     # -------------------------
     # Liga os eventos da View
@@ -43,6 +44,11 @@ class Controlador:
         canvas.bind("<ButtonPress-1>", self.mouse_press)
         canvas.bind("<B1-Motion>", self.mouse_move)
         canvas.bind("<ButtonRelease-1>", self.mouse_release)
+
+        self.view.toolbar.ferramenta.trace_add(
+            "write",
+            self.trocar_estado
+        )
 
         self.view.toolbar.btn_borda.configure(
             command=self.escolher_cor_borda
@@ -58,48 +64,15 @@ class Controlador:
 
     def mouse_press(self, event):
 
-        classe = self.MAPA[
-            self.view.toolbar.ferramenta.get()
-        ]
-
-        self.figura_atual = classe(
-            event.x,
-            event.y,
-            self.cores.obter_cor_borda(),
-            self.cores.obter_cor_preenchimento()
-        )
+        self.estado.mouse_press(self, event)
 
     def mouse_move(self, event):
 
-        if self.figura_atual is None:
-            return
-
-        self.figura_atual.atualizar(
-            event.x,
-            event.y
-        )
-
-        self.view.canvas.desenhar_preview(
-            self.desenho,
-            self.figura_atual
-        )
+        self.estado.mouse_move(self, event)
 
     def mouse_release(self, event):
 
-        if self.figura_atual is None:
-            return
-
-        if not self.figura_atual.incompleta():
-
-            self.desenho.adicionar(
-                self.figura_atual
-            )
-
-        self.figura_atual = None
-
-        self.view.canvas.desenhar(
-            self.desenho
-        )
+        self.estado.mouse_release(self, event)
 
     # -------------------------
     # Cores
@@ -130,3 +103,22 @@ class Controlador:
                 self.cores.obter_cor_borda(),
                 self.cores.obter_cor_preenchimento()
             )
+
+    def trocar_estado(self, *args):
+
+        ferramenta = self.view.toolbar.ferramenta.get()
+
+        if ferramenta == "Linha":
+            self.estado = EstadoLinha()
+
+        elif ferramenta == "Rabisco":
+            self.estado = EstadoRabisco()
+
+        elif ferramenta == "Retângulo":
+            self.estado = EstadoRetangulo()
+
+        elif ferramenta == "Oval":
+            self.estado = EstadoOval()
+
+        elif ferramenta == "Círculo":
+            self.estado = EstadoCirculo()
