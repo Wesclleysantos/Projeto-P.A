@@ -101,6 +101,17 @@ class Toolbar(Frame):
             column=5
         )
 
+        self.btn_salvar = ttk.Button(
+            self,
+            text="Salvar"
+        )
+
+        self.btn_salvar.grid(
+            row=0,
+            column=6,
+            padx=5
+        )
+
     def atualizar_preview(self, borda, preenchimento):
 
         self.preview_borda.configure(bg=borda)
