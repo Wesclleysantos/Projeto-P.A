@@ -3,16 +3,19 @@ from tkinter import colorchooser
 from modelo.desenho import Desenho
 from modelo.gerenciador_cores import GerenciadorCores
 from modelo.persistencia import Persistencia
+
 from controlador.estados.estado_linha import EstadoLinha
 from controlador.estados.estado_retangulo import EstadoRetangulo
 from controlador.estados.estado_oval import EstadoOval
 from controlador.estados.estado_circulo import EstadoCirculo
 from controlador.estados.estado_rabisco import EstadoRabisco
+
 from modelo.linha import Linha
-from modelo.oval import Oval
 from modelo.retangulo import Retangulo
+from modelo.oval import Oval
 from modelo.circulo import Circulo
 from modelo.rabisco import Rabisco
+
 
 class Controlador:
 
@@ -66,7 +69,6 @@ class Controlador:
         self.view.toolbar.btn_salvar.configure(
             command=self.salvar
         )
-        
         self.view.toolbar.btn_abrir.configure(
             command=self.abrir
         )
@@ -141,90 +143,89 @@ class Controlador:
 
     def abrir(self):
 
-        dados = self.persistencia.abrir()
+            dados = self.persistencia.abrir()
 
-        if dados is None:
-            return
-        
-        self.desenho.limpar()
+            if dados is None:
+                return
 
-        for figura in dados:
-            tipo = figura["tipo"]
+            self.desenho.limpar()
 
-            if tipo == "Linha":
+            for figura in dados:
 
-                nova = Linha(
-                    figura["xi"],
-                    figura["yi"],
-                    figura["cor_borda"],
-                    figura["cor_preenchimento"]
-                )
+                tipo = figura["tipo"]
 
-                nova.atualiazar(
-                    figura["x2"],
-                    figura["y2"]
-                )
-            
-            elif tipo == "Retangulo":
+                if tipo == "Linha":
 
-                nova = Retangulo(
-                    figura["xi"],
-                    figura["yi"],
-                    figura["cor_borda"],
-                    figura["cor_preenchimento"]
-                )
+                    nova = Linha(
+                        figura["x1"],
+                        figura["y1"],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
 
-                nova.atualiazar(
-                    figura["x2"],
-                    figura["y2"]
-                )
+                    nova.atualizar(
+                        figura["x2"],
+                        figura["y2"]
+                    )
 
-            elif tipo == "Oval":
+                elif tipo == "Retangulo":
 
-                nova = Oval(
-                    figura["xi"],
-                    figura["yi"],
-                    figura["cor_borda"],
-                    figura["cor_preenchimento"]
-                )
+                    nova = Retangulo(
+                        figura["x1"],
+                        figura["y1"],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
 
-                nova.atualiazar(
-                    figura["x2"],
-                    figura["y2"]
-                )
+                    nova.atualizar(
+                        figura["x2"],
+                        figura["y2"]
+                    )
 
-            elif tipo == "Circulo":
+                elif tipo == "Oval":
 
-                nova = Circulo(
-                    figura["xi"],
-                    figura["yi"],
-                    figura["cor_borda"],
-                    figura["cor_preenchimento"]
-                )
+                    nova = Oval(
+                        figura["x1"],
+                        figura["y1"],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
 
-                nova.atualiazar(
-                    figura["x2"],
-                    figura["y2"]
-                )
+                    nova.atualizar(
+                        figura["x2"],
+                        figura["y2"]
+                    )
 
-            elif tipo == "Rabisco":
-                
-                nova = Rabisco(
-                    figura["pontos"][0][0],
-                    figura["pontos"][0][1],
-                    figura["cor_borda"],
-                    figura["cor_preenchimento"]
-                )
+                elif tipo == "Circulo":
 
-                nova.pontos = figura["pontos"]
+                    nova = Circulo(
+                        figura["x1"],
+                        figura["y1"],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
 
-            else:
-                continue
+                    nova.atualizar(
+                        figura["x2"],
+                        figura["y2"]
+                    )
 
-            self.desenho.adicionar(nova)
+                elif tipo == "Rabisco":
 
-            self.view.canvas.desenhar(
+                    pontos = figura["pontos"]
 
-                self.desenho
-                
-            )
+                    nova = Rabisco(
+                        pontos[0][0],
+                        pontos[0][1],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
+
+                    nova.pontos = pontos
+
+                else:
+                    continue
+
+                self.desenho.adicionar(nova)
+
+            self.view.canvas.desenhar(self.desenho)

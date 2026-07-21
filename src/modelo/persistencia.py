@@ -1,7 +1,6 @@
 import json
 from tkinter import filedialog
 
-
 class Persistencia:
 
     def salvar(self, desenho):
@@ -38,14 +37,14 @@ class Persistencia:
 
         with open(caminho, "w", encoding="utf-8") as arquivo:
             json.dump(figuras_json, arquivo, indent=4)
-
+    
     def abrir(self):
         caminho = filedialog.askopenfilename(
             filetypes=[("Arquivo JSON", "*.json")]
         )
 
         if not caminho:
-            return 
+            return None
         
         with open(caminho, "r", encoding="utf-8") as arquivo:
             return json.load(arquivo)

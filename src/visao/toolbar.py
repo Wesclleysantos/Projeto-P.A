@@ -120,7 +120,7 @@ class Toolbar(Frame):
         self.btn_abrir.grid(
             row=0,
             column=7,
-            padx=5
+            padx=5  
         )
 
     def atualizar_preview(self, borda, preenchimento):
