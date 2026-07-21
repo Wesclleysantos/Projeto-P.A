@@ -10,7 +10,6 @@ from controlador.estados.estado_circulo import EstadoCirculo
 from controlador.estados.estado_rabisco import EstadoRabisco
 
 
-from modelo.persistencia import Persistencia
 
 class Controlador:
 
@@ -22,8 +21,6 @@ class Controlador:
         self.desenho = Desenho()
 
         self.cores = GerenciadorCores()
-
-        self.persistencia = Persistencia()
 
         self.figura_atual = None
 
@@ -60,10 +57,6 @@ class Controlador:
         self.view.toolbar.btn_preenchimento.configure(
             command=self.escolher_cor_preenchimento
         )
-
-        self.view.toolbar.btn_salvar.configure(
-            command=self.salvar
-)
 
     # -------------------------
     # Eventos do Mouse
@@ -110,3 +103,22 @@ class Controlador:
                 self.cores.obter_cor_borda(),
                 self.cores.obter_cor_preenchimento()
             )
+
+    def trocar_estado(self, *args):
+
+        ferramenta = self.view.toolbar.ferramenta.get()
+
+        if ferramenta == "Linha":
+            self.estado = EstadoLinha()
+
+        elif ferramenta == "Rabisco":
+            self.estado = EstadoRabisco()
+
+        elif ferramenta == "Retângulo":
+            self.estado = EstadoRetangulo()
+
+        elif ferramenta == "Oval":
+            self.estado = EstadoOval()
+
+        elif ferramenta == "Círculo":
+            self.estado = EstadoCirculo()
