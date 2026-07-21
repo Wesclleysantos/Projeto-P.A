@@ -112,6 +112,17 @@ class Toolbar(Frame):
             padx=5
         )
 
+        self.btn_abrir = ttk.Button(
+            self,
+            text="Abrir"
+        )
+
+        self.btn_abrir.grid(
+            row=0,
+            column=7,
+            padx=5  
+        )
+
     def atualizar_preview(self, borda, preenchimento):
 
         self.preview_borda.configure(bg=borda)

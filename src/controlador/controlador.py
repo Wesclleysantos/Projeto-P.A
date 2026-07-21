@@ -3,12 +3,18 @@ from tkinter import colorchooser
 from modelo.desenho import Desenho
 from modelo.gerenciador_cores import GerenciadorCores
 from modelo.persistencia import Persistencia
+
 from controlador.estados.estado_linha import EstadoLinha
 from controlador.estados.estado_retangulo import EstadoRetangulo
 from controlador.estados.estado_oval import EstadoOval
 from controlador.estados.estado_circulo import EstadoCirculo
 from controlador.estados.estado_rabisco import EstadoRabisco
 
+from modelo.linha import Linha
+from modelo.retangulo import Retangulo
+from modelo.oval import Oval
+from modelo.circulo import Circulo
+from modelo.rabisco import Rabisco
 
 
 class Controlador:
@@ -62,6 +68,10 @@ class Controlador:
 
         self.view.toolbar.btn_salvar.configure(
             command=self.salvar
+        )
+
+        self.view.toolbar.btn_abrir.configure(
+            command=self.abrir
         )
     
     # -------------------------
@@ -131,3 +141,92 @@ class Controlador:
     
     def salvar(self):
         self.persistencia.salvar(self.desenho)
+
+    def abrir(self):
+
+            dados = self.persistencia.abrir()
+
+            if dados is None:
+                return
+
+            self.desenho.limpar()
+
+            for figura in dados:
+
+                tipo = figura["tipo"]
+
+                if tipo == "Linha":
+
+                    nova = Linha(
+                        figura["x1"],
+                        figura["y1"],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
+
+                    nova.atualizar(
+                        figura["x2"],
+                        figura["y2"]
+                    )
+
+                elif tipo == "Retangulo":
+
+                    nova = Retangulo(
+                        figura["x1"],
+                        figura["y1"],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
+
+                    nova.atualizar(
+                        figura["x2"],
+                        figura["y2"]
+                    )
+
+                elif tipo == "Oval":
+
+                    nova = Oval(
+                        figura["x1"],
+                        figura["y1"],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
+
+                    nova.atualizar(
+                        figura["x2"],
+                        figura["y2"]
+                    )
+
+                elif tipo == "Circulo":
+
+                    nova = Circulo(
+                        figura["x1"],
+                        figura["y1"],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
+
+                    nova.atualizar(
+                        figura["x2"],
+                        figura["y2"]
+                    )
+
+                elif tipo == "Rabisco":
+
+                    pontos = figura["pontos"]
+
+                    nova = Rabisco(
+                        pontos[0][0],
+                        pontos[0][1],
+                        figura["cor_borda"],
+                        figura["cor_preenchimento"]
+                    )
+
+                    nova.pontos = pontos
+
+                else:
+                    continue
+
+                self.desenho.adicionar(nova)
+
+            self.view.canvas.desenhar(self.desenho)
