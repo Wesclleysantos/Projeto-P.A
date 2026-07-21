@@ -2,7 +2,7 @@ from tkinter import colorchooser
 
 from modelo.desenho import Desenho
 from modelo.gerenciador_cores import GerenciadorCores
-
+from modelo.persistencia import Persistencia
 from controlador.estados.estado_linha import EstadoLinha
 from controlador.estados.estado_retangulo import EstadoRetangulo
 from controlador.estados.estado_oval import EstadoOval
@@ -21,6 +21,8 @@ class Controlador:
         self.desenho = Desenho()
 
         self.cores = GerenciadorCores()
+
+        self.persistencia = Persistencia()
 
         self.figura_atual = None
 
@@ -58,6 +60,10 @@ class Controlador:
             command=self.escolher_cor_preenchimento
         )
 
+        self.view.toolbar.btn_salvar.configure(
+            command=self.salvar
+        )
+    
     # -------------------------
     # Eventos do Mouse
     # -------------------------
@@ -122,3 +128,6 @@ class Controlador:
 
         elif ferramenta == "Círculo":
             self.estado = EstadoCirculo()
+    
+    def salvar(self):
+        self.persistencia.salvar(self.desenho)
