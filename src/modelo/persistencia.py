@@ -38,3 +38,14 @@ class Persistencia:
 
         with open(caminho, "w", encoding="utf-8") as arquivo:
             json.dump(figuras_json, arquivo, indent=4)
+
+    def abrir(self):
+        caminho = filedialog.askopenfilename(
+            filetypes=[("Arquivo JSON", "*.json")]
+        )
+
+        if not caminho:
+            return 
+        
+        with open(caminho, "r", encoding="utf-8") as arquivo:
+            return json.load(arquivo)
