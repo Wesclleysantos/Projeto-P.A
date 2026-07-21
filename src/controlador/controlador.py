@@ -154,13 +154,13 @@ class Controlador:
             if tipo == "Linha":
 
                 nova = Linha(
-                    figura["xi"],
-                    figura["yi"],
+                    figura["x1"],
+                    figura["y1"],
                     figura["cor_borda"],
                     figura["cor_preenchimento"]
                 )
 
-                nova.atualiazar(
+                nova.atualizar(
                     figura["x2"],
                     figura["y2"]
                 )
@@ -168,13 +168,13 @@ class Controlador:
             elif tipo == "Retangulo":
 
                 nova = Retangulo(
-                    figura["xi"],
-                    figura["yi"],
+                    figura["x1"],
+                    figura["y1"],
                     figura["cor_borda"],
                     figura["cor_preenchimento"]
                 )
 
-                nova.atualiazar(
+                nova.atualizar(
                     figura["x2"],
                     figura["y2"]
                 )
@@ -182,13 +182,13 @@ class Controlador:
             elif tipo == "Oval":
 
                 nova = Oval(
-                    figura["xi"],
-                    figura["yi"],
+                    figura["x1"],
+                    figura["y1"],
                     figura["cor_borda"],
                     figura["cor_preenchimento"]
                 )
 
-                nova.atualiazar(
+                nova.atualizar(
                     figura["x2"],
                     figura["y2"]
                 )
@@ -196,13 +196,13 @@ class Controlador:
             elif tipo == "Circulo":
 
                 nova = Circulo(
-                    figura["xi"],
-                    figura["yi"],
+                    figura["x1"],
+                    figura["y1"],
                     figura["cor_borda"],
                     figura["cor_preenchimento"]
                 )
 
-                nova.atualiazar(
+                nova.atualizar(
                     figura["x2"],
                     figura["y2"]
                 )
